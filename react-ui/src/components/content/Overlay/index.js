@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
-import { debounce } from "lodash";
 import {
   Button,
   Dialog,
@@ -34,11 +33,9 @@ class Overlay extends Component {
   constructor(props) {
     super(props);
 
-    this.handleChange = debounce(this.handleChange, 100);
-
     this.state = {
       open: false,
-      search: ""
+      filteredWords: null
     };
   }
 
@@ -51,17 +48,15 @@ class Overlay extends Component {
   };
 
   handleChange = event => {
-    event.persist();
-    this.setState({ search: event.target.value });
+    this.setState({
+      filteredWords: this.props.wordList.words.filter(
+        word => word.es.indexOf(event.target.value) === 0
+      )
+    });
   };
 
   render() {
-    const { search } = this.state;
-
-    const filteredWords = this.props.wordList.words.filter(
-      word => word.es.indexOf(search) === 0
-    );
-
+    const { filteredWords } = this.state;
     return (
       <Fragment>
         <Button onClick={this.handleClickOpen} style={styles.overlay}>
@@ -81,7 +76,7 @@ class Overlay extends Component {
             onChange={this.handleChange}
           />
           <DialogContent>
-            {filteredWords.map((word, i) => (
+            {(filteredWords || this.props.wordList.words).map((word, i) => (
               <div style={styles.wordList} key={i}>
                 <span style={styles.word}>{word.es}</span>: {word.en}
               </div>
